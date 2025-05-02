@@ -4,6 +4,7 @@ from main import app
 from services.conversation_service import ConversationService
 import uuid
 import asyncio
+from datetime import datetime
 
 client = TestClient(app)
 
@@ -32,22 +33,22 @@ def test_summarize_endpoint():
     assert "summary" in response.json()
     assert isinstance(response.json()["summary"], str)
     
-    response = client.post("/api/v1/summarize", json={"conversation_id": str(uuid.uuid4())})
-    assert response.status_code == 400
+    response = client.post("/api/v1/summarize", json={})
+    assert response.status_code == 422
 
 @pytest.mark.asyncio
 async def test_conversation_service():
     service = ConversationService()
     conversation_id = str(uuid.uuid4())
+    message_time = datetime.now()
+    await service.add_message(conversation_id, "user", "Hello", message_time)
+    await service.add_message(conversation_id, "assistant", "Hi there!", message_time)
     
-    await service.add_message(conversation_id, "user", "Hello")
-    await service.add_message(conversation_id, "assistant", "Hi there!")
-    
-    messages = await service.get_context_messages(conversation_id)
+    messages = await service.get_context_messages(conversation_id, message_time)
     assert len(messages) == 2
     
-    summary = await service.get_summary(conversation_id)
+    summary = await service.get_summary(conversation_id, message_time)
     assert isinstance(summary, str)
     
-    messages = await service.get_context_messages(str(uuid.uuid4()))
+    messages = await service.get_context_messages(str(uuid.uuid4()), message_time)
     assert len(messages) == 0

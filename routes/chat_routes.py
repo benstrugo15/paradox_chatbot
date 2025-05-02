@@ -6,6 +6,7 @@ from services.conversation_service import ConversationService
 from services.request_handler import RequestHandler
 from dependencies import get_chatbot, get_neural_searcher, get_conversation_service, get_request_handler
 from datetime import datetime
+import asyncio
 
 router = APIRouter(prefix="/api/v1", tags=["chat"])
 
@@ -38,6 +39,7 @@ async def query(
     context_messages = await conversation_service.get_context_messages(conversation_id, message_time)
     retrieved_data = neural_searcher.search(text=message, context_messages=context_messages)
     output = chatbot.search(retrieved_data, message, context_messages)
+    # await asyncio.sleep(20) # use this line if you're testing rejection of non-latest messages.
     is_last_message = conversation_service.is_last_message(conversation_id, message_time)
     if not is_last_message:
         return {
