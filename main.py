@@ -6,7 +6,6 @@ from middleware.error_handler import error_handler_middleware
 import logging
 import sys
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -24,28 +23,19 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add error handling middleware
 app.middleware("http")(error_handler_middleware)
 
-# Configure CORS
+# noinspection PyTypeChecker
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
 app.include_router(chat_routes.router)
 
-@app.on_event("startup")
-async def startup_event():
-    logger.info("Starting up application...")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    logger.info("Shutting down application...")
 
 if __name__ == "__main__":
     try:
