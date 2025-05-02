@@ -7,9 +7,10 @@ from typing import Callable, Awaitable
 
 logger = logging.getLogger(__name__)
 
+
 async def error_handler_middleware(
-    request: Request,
-    call_next: Callable[[Request], Awaitable[JSONResponse]]
+        request: Request,
+        call_next: Callable[[Request], Awaitable[JSONResponse]]
 ) -> JSONResponse:
     try:
         return await call_next(request)
@@ -24,4 +25,4 @@ async def error_handler_middleware(
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"error": "An unexpected error occurred"}
-        ) 
+        )
